@@ -1,0 +1,30 @@
+<component name="libraryTable">
+  <library name="GOPATH &lt;go&gt;">
+    <CLASSES>
+      <root url="file://D:/diamond/src/pattern" />
+      <root url="file://D:/bin/src/gopkg.in" />
+      <root url="file://D:/bin/src/github.com" />
+      <root url="file://D:/diamond/src/project1" />
+      <root url="file://D:/diamond/src/hello" />
+      <root url="file://D:/diamond/src/go-patterns" />
+      <root url="file://D:/diamond/src/.metadata" />
+      <root url="file://D:/diamond/src/github.com" />
+      <root url="file://D:/diamond/src/RemoteSystemsTempFiles" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="file://D:/diamond/src/pattern" />
+      <root url="file://D:/bin/src/gopkg.in" />
+      <root url="file://D:/bin/src/github.com" />
+      <root url="file://D:/diamond/src/project1" />
+      <root url="file://D:/diamond/src/hello" />
+      <root url="file://D:/diamond/src/go-patterns" />
+      <root url="file://D:/diamond/src/.metadata" />
+      <root url="file://D:/diamond/src/github.com" />
+      <root url="file://D:/diamond/src/RemoteSystemsTempFiles" />
+    </SOURCES>
+    <excluded>
+      <root url="file://$PROJECT_DIR$" />
+    </excluded>
+  </library>
+</component>
