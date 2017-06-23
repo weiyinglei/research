@@ -28,7 +28,7 @@ var (
 	hp = "tcp://10.70.7.181:8090"
 
 	DefalutTimeout = 25 * time.Second
-	MaxClient      = 100
+	MaxClient      = 10
 	clientNum      = 0
 )
 func checkError(err error) {
@@ -177,7 +177,7 @@ func sockConn(daemon string, timeout time.Duration) (net.Conn, error) {
 func sendData(conn net.Conn, n int, ch chan int) {
 	for {
 		rand.Seed(int64(time.Now().Nanosecond()))
-		time.Sleep(time.Duration(rand.Intn(60000)) * time.Millisecond)
+		time.Sleep(time.Duration(rand.Intn(30000)) * time.Millisecond)
 
 		var bodyBuf bytes.Buffer
 		bodyBuf.WriteString("{\"c\":\"[")

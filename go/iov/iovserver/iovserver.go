@@ -1,43 +1,56 @@
 package main
 
 import (
-	"fmt"
 	"net"
 	"os"
 	"time"
+	"github.com/mkideal/log"
 )
 const (
-	MAX_CONN_NUM = 100
+	MAX_CONN_NUM = 10
 )
 func EchoFunc(conn net.Conn) {
 	defer conn.Close()
-	buf := make([]byte, 10)
+	buf := make([]byte, 100)
 	for {
-		_, err := conn.Read(buf)
-		if err != nil {
-			println("Error reading:", conn.RemoteAddr(), err.Error())
-			return
-		}
-		if err == nil {
-			fmt.Println(string(buf))
-			/*r,err := c.Do("SADD","vehicle1:330101:201706211943","fdakljfdakl")
+		if conn != nil {
+			_, err := conn.Read(buf)
 			if err != nil {
-				fmt.Println(err)
+				log.Error("Error reading:", conn.RemoteAddr(), err.Error())
+				return
 			}
 			if err == nil {
-				fmt.Println(r)
-			}*/
-		}
-		//fmt.Printf("server %s\n", string(buf))
-		//send reply
-		_, err = conn.Write(buf)
-		if err != nil {
-			println("Error send reply:", conn.RemoteAddr(), err.Error())
-			return
+				log.Error("listen ",conn.RemoteAddr(),string(buf))
+			}
+			//send reply
+			_, err = conn.Write(buf)
+			if err != nil {
+				log.Error("Error send reply:", conn.RemoteAddr(), err.Error())
+				return
+			}
 		}
 	}
 }
+func initLog()  {
+	// Init and defer Uninit
+	defer log.Uninit(log.InitFileAndConsole("./logs/app.log",log.LvDEBUG))
+
+	log.SetLevel(log.LvINFO)
+
+	// 默认日志等级是 INFO, 可以按以下方式修改等级:
+	//
+	//	log.SetLevel(log.LvTRACE)
+	// 	log.SetLevel(log.LvDEBUG)
+	// 	log.SetLevel(log.LvINFO)
+	// 	log.SetLevel(log.LvWARN)
+	// 	log.SetLevel(log.LvERROR)
+	// 	log.SetLevel(log.LvFATAL)
+}
+func init()  {
+	initLog()
+}
 func main() {
+
 	/*c, err := redis.Dial("tcp", "10.0.30.120:6379")
 	if err != nil {
 		fmt.Println(err)
@@ -47,12 +60,12 @@ func main() {
 
 	listener, err := net.Listen("tcp", "10.70.7.181:8090")
 	if err != nil {
-		fmt.Println("error listening:", err.Error())
+		log.Error("error listening:", err.Error())
 		os.Exit(1)
 	}
 	defer listener.Close()
 
-	fmt.Printf("running ...\n")
+	log.Error("running ...\n")
 
 	var connNum int = 0
 	connChan := make(chan net.Conn)
@@ -66,7 +79,7 @@ func main() {
 
 	go func() {
 		for _ = range time.Tick(5e9) {
-			fmt.Printf("connNum: %d\n", connNum)
+			log.Error("connNum: %d\n", connNum)
 		}
 	}()
 
@@ -83,7 +96,7 @@ func main() {
 	for {
 		conn, err := listener.Accept()
 		if err != nil {
-			println("Error accept:", err.Error())
+			log.Error("Error accept:", err.Error())
 			return
 		}
 		connChan <- conn
