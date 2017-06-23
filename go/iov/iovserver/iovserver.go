@@ -5,12 +5,11 @@ import (
 	"net"
 	"os"
 	"time"
-	"github.com/garyburd/redigo/redis"
 )
 const (
 	MAX_CONN_NUM = 100
 )
-func EchoFunc(conn net.Conn,c redis.Conn) {
+func EchoFunc(conn net.Conn) {
 	defer conn.Close()
 	buf := make([]byte, 10)
 	for {
@@ -21,13 +20,13 @@ func EchoFunc(conn net.Conn,c redis.Conn) {
 		}
 		if err == nil {
 			fmt.Println(string(buf))
-			r,err := c.Do("SADD","vehicle1:330101:201706211943","fdakljfdakl")
+			/*r,err := c.Do("SADD","vehicle1:330101:201706211943","fdakljfdakl")
 			if err != nil {
 				fmt.Println(err)
 			}
 			if err == nil {
 				fmt.Println(r)
-			}
+			}*/
 		}
 		//fmt.Printf("server %s\n", string(buf))
 		//send reply
@@ -39,11 +38,11 @@ func EchoFunc(conn net.Conn,c redis.Conn) {
 	}
 }
 func main() {
-	c, err := redis.Dial("tcp", "10.0.30.120:6379")
+	/*c, err := redis.Dial("tcp", "10.0.30.120:6379")
 	if err != nil {
 		fmt.Println(err)
 		return
-	}
+	}*/
 	//defer c.Close()
 
 	listener, err := net.Listen("tcp", "10.70.7.181:8090")
@@ -75,7 +74,7 @@ func main() {
 		go func() {
 			for conn := range connChan {
 				connChangeChan <- 1
-				EchoFunc(conn,c)
+				EchoFunc(conn)
 				connChangeChan <- -1
 			}
 		}()

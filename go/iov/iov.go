@@ -1,11 +1,8 @@
 package main
 
 import (
-	//"bytes"
 	"fmt"
-	//"io"
 	"math/rand"
-	//"net"
 	"os"
 	"time"
 	"database/sql"
@@ -14,30 +11,24 @@ import (
 	"strings"
 	"bytes"
 	"net"
-	//"runtime/debug"
 	"net/url"
 	_ "github.com/go-sql-driver/mysql"
-	//_ "github.com/davecheney/gmx"
-
 )
 var (
 	db *sql.DB
+
 	lvin *list.List
 	svin []string
 	sCurrentVin []string
+
 	lcoor *list.List
 	scoor []string
 
-	host string = "10.0.30.120:8090"
-	//host string = "10.0.30.124:8090"
-	//host string = "10.70.7.181:8090"
-
-	hp = "tcp://10.0.30.120:8090"
-	//hp = "tcp://10.0.30.215:8090"
-	//hp = "tcp://10.70.7.215:8090"
+	//hp = "tcp://10.0.30.120:8090"
+	hp = "tcp://10.70.7.181:8090"
 
 	DefalutTimeout = 25 * time.Second
-	MaxClient      = 10000
+	MaxClient      = 100
 	clientNum      = 0
 )
 func checkError(err error) {
@@ -45,31 +36,6 @@ func checkError(err error) {
 		fmt.Fprintf(os.Stderr, "Fatal error: %s", err.Error())
 		os.Exit(1)
 	}
-}
-func open(ch chan int) net.Conn {
-	//rand.Seed(int64(time.Now().Nanosecond()))
-	//time.Sleep(time.Duration(rand.Intn(1000)) * time.Millisecond)
-	var conn net.Conn = nil
-	for {
-		_, err := net.Dial("tcp", host)
-		if err == nil {
-			ch <- 1
-			break
-		}
-	}
-
-	defer func(ch chan int) {
-		//fmt.Println("disconnected :" + ipStr)
-		if conn != nil {
-			err := conn.Close()
-			if err != nil {
-				fmt.Println(err)
-				//fmt.Println(debug.Stack())
-			}
-			ch <- -1
-		}
-	}(ch)
-	return conn
 }
 func write(conn net.Conn,buf bytes.Buffer){
 	for {
@@ -86,79 +52,14 @@ func write(conn net.Conn,buf bytes.Buffer){
 			}
 		}
 		if err == nil {
-			//fmt.Println(conn.LocalAddr()," write: ",buf.String())
+			fmt.Println(conn.LocalAddr()," write: ",buf.String())
 			break
 		}
-	}
-
-}
-func start(ch chan int, coor []string, sCurrentVin []string) {
-	conn := open(ch)
-	for {
-		//r := rand.New(rand.NewSource(time.Now().UnixNano()))
-		rand.Seed(int64(time.Now().Nanosecond()))
-		time.Sleep(time.Duration(rand.Intn(10000) + 10000) * time.Millisecond)
-
-		var bodyBuf bytes.Buffer
-		bodyBuf.WriteString("{\"c\":\"[")
-		bodyBuf.WriteString(coor[rand.Intn(len(coor))])
-		bodyBuf.WriteString("]\",\"v\":\"")
-		bodyBuf.WriteString(sCurrentVin[rand.Intn(len(sCurrentVin))])
-		bodyBuf.WriteString("\"}")
-		body := bodyBuf.String()
-		leng := len(body)
-
-		m := 0
-		hex := make([]int, 0)
-		length := 0;
-		for{
-			m = leng / 256
-			leng = leng % 256
-
-			if(m == 0){
-				hex = append(hex, leng)
-				length++
-				break
+		defer func() {
+			if r := recover(); r != nil {
+				fmt.Println("[E]", r)
 			}
-
-			hex = append(hex, m)
-			length++;
-		}
-
-		//fmt.Println(hex)
-
-		var buf bytes.Buffer
-		var b = []byte{1, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7, 209}
-		for i:=0; i<4-length;i++  {
-			b = append(b,0)
-		}
-
-		for i:=0;i<len(hex) ;i++  {
-			bTemp := byte(hex[i])
-			b =append(b,bTemp)
-		}
-
-		//b = append(b,byte(leng))
-
-		buf.Write(b)
-		buf.WriteString(bodyBuf.String())
-
-		write(conn,buf)
-		/*if err != nil {
-			time.Sleep(time.Duration(rand.Intn(1000) + 1000) * time.Millisecond)
-			conn, err := net.Dial("tcp", host)
-			if err == nil{
-				ch <- 1
-			}
-			if err != nil {
-				fmt.Println(err)
-			}
-			defer func(ch chan int) {
-				//fmt.Println("disconnected :" + ipStr)
-				conn.Close()
-				ch <- -1
-			}(ch)
-		}*/
+		}()
 	}
 }
 func initSvin(){
@@ -336,20 +237,18 @@ func connectServer(ch chan int) {
 		}
 	}
 }
-func main() {
-	//连接数据库
+func init(){
+	fmt.Println("init!")
+	//init mysql connection
 	db, _ = sql.Open("mysql", "root:123.com@tcp(10.0.30.120:3306)/iov?charset=utf8")
 	db.SetMaxOpenConns(20)
 	db.SetMaxIdleConns(10)
 	db.Ping()
 
+	//init svin and sarea
 	initSvin()
-
 	initSarea()
-
-	//vin列表
 	vinCount := count()
-	//s := make([]string,count,count)
 
 	//随机vin
 	// 根据时间设置随机数种子
@@ -359,15 +258,16 @@ func main() {
 		index := rand.Intn(vinCount)
 		sCurrentVin = append(sCurrentVin,svin[index])
 	}
-
-	count := 0
+}
+func main() {
+	//runtime.GOMAXPROCS(runtime.NumCPU())
 	ch := make(chan int)
 
 	connectServer(ch)
 
 	for w := range ch {
 		//fmt.Println(w)
-		count += w
-		fmt.Println(count)
+		clientNum += w
+		fmt.Println(clientNum)
 	}
 }
