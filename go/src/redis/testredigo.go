@@ -1,4 +1,4 @@
-package main
+package redis
 
 import (
 	"time"
@@ -15,7 +15,7 @@ var (
 
 func init() {
 	// 从配置文件获取redis的ip以及db
-	REDIS_HOST = "10.0.30.120:6379"
+	REDIS_HOST = "10.0.30.232:6379"
 	REDIS_DB = 1
 	// 建立连接池
 	RedisClient = &redis.Pool{
