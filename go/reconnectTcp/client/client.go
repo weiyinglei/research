@@ -6,12 +6,12 @@ import (
 	"log"
 	"os"
 	"bytes"
-	"math/rand"
+	//"math/rand"
 	"bufio"
 )
 
 var (
-	hostAndPort = "10.0.30.122:8090"
+	hostAndPort = "10.0.30.231:12345"
 	DefaultConnNum = 60000
 
 	logger *log.Logger
@@ -81,8 +81,9 @@ func doRequest(conn net.Conn,connChan chan int,msgChan chan int64) {
 		}else{
 			//logger.Print("recv msg : ",msg)
 		}
-		rand.Seed(int64(time.Now().Nanosecond()))
-		time.Sleep(time.Duration(rand.Intn(60000)) * time.Millisecond)
+		//rand.Seed(int64(time.Now().Nanosecond()))
+		//time.Sleep(time.Duration(rand.Intn(60000)) * time.Millisecond)
+		time.Sleep(60 * time.Second)
 	}
 	connChan <- -1
 }
