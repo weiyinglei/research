@@ -11,7 +11,7 @@ import (
 )
 
 var (
-	hostAndPort = "10.0.30.231:12345"
+	hostAndPort = "10.0.30.231:8000"
 	DefaultConnNum = 60000
 
 	logger *log.Logger
@@ -28,6 +28,8 @@ func iovInfo() []byte {
 	bodyBuf.Write([]byte("2000"))
 	bodyBuf.Write([]byte{0x0})
 	bodyBuf.Write([]byte("100"))
+	bodyBuf.Write([]byte{0x0})
+	bodyBuf.Write([]byte("330102"))
 	bodyBuf.Write([]byte{0x0})
 
 	leng := len(bodyBuf.String())

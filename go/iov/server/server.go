@@ -6,24 +6,23 @@ import (
 	"strings"
 	"log"
 	"github.com/reddec/go-queue"
+	"fmt"
 )
 
 var (
-	port = ":12345"
+	port = ":8090"
 
 	logger *log.Logger
 	q *queue.BlockingQueue
 )
-
 func checkError(err error) {
 	if err != nil {
 		logger.Println(err)
 		os.Exit(1)
 	}
 }
-
 func handleClient(conn net.Conn,connChan chan int,msgChan chan int64) {
-	//TODO conn.SetReadDeadline(time.Now().Add(3 * time.Minute)) error
+	//conn.SetReadDeadline(time.Now().Add(3 * time.Minute)) error
 	request := make([]byte,1024)
 	defer conn.Close()
 
@@ -47,7 +46,6 @@ func handleClient(conn net.Conn,connChan chan int,msgChan chan int64) {
 	}
 	connChan <- -1
 }
-
 func main() {
 	//init logger
 	file, err := os.Create("server.log")
@@ -90,13 +88,14 @@ func main() {
 		}
 	}()
 
-	/*go func() {
-		//10000msg->1msg
-		if q.Size() >= 10000 {
-			//keep 100 connections
-			//send
+	go func() {
+		for {
+			str,b := q.Pop();
+			if b {
+				fmt.Println(str.(string))
+			}
 		}
-	}()*/
+	}()
 
 	for {
 		conn,err := listener.Accept()
