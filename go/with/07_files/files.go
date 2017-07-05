@@ -16,7 +16,7 @@ import (
 
 func main() {
 
-	filename := "./extras/rabbits.txt"
+	filename := "rabbits.txt"
 
 	// read in file, one command loads file into content variable
 	// if an error occurs returns it as the second return value
